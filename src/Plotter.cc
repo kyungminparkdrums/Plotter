@@ -46,14 +46,17 @@ void Plotter::CreateStack( TDirectory *target, Logfile& logfile) {
     }
   }
 
+  //// Will run without data, just will remove ratio plot
+  if(noData) {
+    cout << "No Data given: Plotting without Data" << endl;
+  }
+
+
+
   //// Require Backgrounds to run
   if(bglist->GetSize() == 0) {
     cout << "No backgrounds given: Aborting" << endl;
     exit(1);
-  }
-  //// Will run without data, just will remove ratio plot
-  if(noData) {
-    cout << "No Data given: Plotting without Data" << endl;
   }
 
   TString path( (char*)strstr( target->GetPath(), ":" ) );
@@ -106,8 +109,14 @@ void Plotter::CreateStack( TDirectory *target, Logfile& logfile) {
       /// h1 is the reference histogram to grab the other histos.
       /// here we also make the containers for the graphs
       TH1* readObj = (TH1*)obj;
+
       TH1D* error = new TH1D("error", readObj->GetTitle(), readObj->GetXaxis()->GetNbins(), readObj->GetXaxis()->GetXmin(), readObj->GetXaxis()->GetXmax());
       TH1D* datahist = new TH1D("data", readObj->GetTitle(), readObj->GetXaxis()->GetNbins(), readObj->GetXaxis()->GetXmin(), readObj->GetXaxis()->GetXmax());
+
+      //datahist->GetXaxis()->SetRangeUser(1000,5000);
+ 
+      //TH1D* error = new TH1D("error", readObj->GetTitle(), readObj->GetXaxis()->GetNbins(), readObj->GetXaxis()->GetXmin(), readObj->GetXaxis()->GetXmax());
+      //TH1D* datahist = new TH1D("data", readObj->GetTitle(), readObj->GetXaxis()->GetNbins(), readObj->GetXaxis()->GetXmin(), readObj->GetXaxis()->GetXmax());
       TList* sigHists = new TList();
       THStack *hs = new THStack(readObj->GetName(),readObj->GetName());
 
@@ -175,6 +184,7 @@ void Plotter::CreateStack( TDirectory *target, Logfile& logfile) {
 
       datahist->SetMarkerStyle(20);
       datahist->SetLineColor(1);
+      //datahist->GetXaxis()->SetRangeUser(-1000,5000);
 
       /// sort based on integral.  Change this function is want other order
       hs = sortStack(hs);
@@ -256,6 +266,7 @@ void Plotter::CreateStack( TDirectory *target, Logfile& logfile) {
       /// this isn't necessary.  A little jaring to make the change.  Also, I've put
       /// hs instead of hsdraw so many times...
       THStack* hsdraw = hs;
+      //hsdraw->GetXaxis()->SetRangeUser(-1000,5000);
       if(styler.getDivideBins() && passed && bins.size() > styler.getBinLimit()) {
 	      datahist = (TH1D*)datahist->Rebin(bins.size()-1, "data_rebin", binner);
       	error = (TH1D*)error->Rebin(bins.size()-1, "error_rebin", binner);
@@ -332,15 +343,16 @@ void Plotter::CreateStack( TDirectory *target, Logfile& logfile) {
     pt->SetBorderSize(0);
     pt->Draw();
 
-    TPaveText *pt2 = new TPaveText(0.09,0.88,0.21,0.95,"NBNDC");
+    TPaveText *pt2 = new TPaveText(0.11,0.85,0.23,0.92,"NBNDC");
     pt2->AddText("CMS ");
     pt2->SetTextAlign(12);
     pt2->SetFillStyle(0);
     pt2->SetBorderSize(0);
     pt2->Draw();
 
-    TPaveText *pt3 = new TPaveText(0.09,0.82,0.21,0.88,"NBNDC");
-    pt3->AddText("Preliminary");
+    TPaveText *pt3 = new TPaveText(0.108,0.79,0.295,0.85,"NBNDC");
+    //pt3->AddText("Preliminary");
+    pt3->AddText("Work in Progress");
     pt3->SetTextAlign(12);
     pt3->SetTextFont(52);
     pt3->SetFillStyle(0);
@@ -710,7 +722,7 @@ TList* Plotter::signalBottom(const TList* signal, const TH1D* data, const TH1D* 
 
 void Plotter::setYAxisTop(TH1* datahist, TH1* error, double ratio, THStack* hs) {
   TAxis* yaxis = hs->GetYaxis();
-  std::string y_title_name, x_axis_name, t;
+  std::string y_title_name, x_axis_name, ratio_title_name, t;
 
   if(newLabel(hs->GetTitle()).find("GeV") != std::string::npos) {
     x_axis_name = "GeV";
@@ -724,7 +736,8 @@ void Plotter::setYAxisTop(TH1* datahist, TH1* error, double ratio, THStack* hs) 
   //when Divide bin option and fixed bin size option is given
   if(styler.getDivideBins() && styler.getRebinLimit() >1.0) {
     double bin_width = datahist->GetBinWidth(1);
-    double nearest= round(bin_width * 100) / 100;
+    //double nearest= round(bin_width * 100) / 100;
+    double nearest= bin_width;
     std::string s = std::to_string(nearest);
     std::string temp;
     std::size_t loc = s.find('.');
@@ -735,10 +748,10 @@ void Plotter::setYAxisTop(TH1* datahist, TH1* error, double ratio, THStack* hs) 
       s.erase(loc,3);
       temp=s.c_str();
 
-      y_title_name = "Events/"+temp+" "+t;
+      y_title_name = "Events / "+temp+" "+t;
     }
     else {
-      y_title_name = "Events/"+s+" "+t;
+      y_title_name = "Events / "+s+" "+t;
     }
     yaxis->SetTitle(y_title_name.c_str());
     s.clear();
@@ -746,7 +759,7 @@ void Plotter::setYAxisTop(TH1* datahist, TH1* error, double ratio, THStack* hs) 
    //when Divide bin option and auto bin size option is given
   else if(styler.getDivideBins() && styler.getRebinLimit() < 1.0) {
     if(t=="GeV") {
-      y_title_name = "Events/"+t;
+      y_title_name = "Events / "+t;
     }
 
 
@@ -771,12 +784,20 @@ void Plotter::setXAxisBot(TH1* data_mc, double ratio) {
   TAxis* xaxis = data_mc->GetXaxis();
   xaxis->SetTitle(newLabel(data_mc->GetTitle()).c_str());
   xaxis->SetLabelSize(xaxis->GetLabelSize()*ratio);
+
+  float xmin, xmax;
+   
+  //xaxis->SetRangeUser(1000, 5000);
 }
 
 
 //// If it is a ratio plot, use a lot of magic to find a good
 //// window for the ratio plot.
 void Plotter::setYAxisBot(TAxis* yaxis, TH1* data_mc, double ratio) {
+  std::string ratio_title_name;
+  
+  ratio_title_name = "Data / MC";
+
   double divmin = 0.0, divmax = 2.99;
   double low=2.99, high=0.0, tmpval;
   for(int i = 0; i < data_mc->GetXaxis()->GetNbins(); i++) {
@@ -795,8 +816,10 @@ void Plotter::setYAxisBot(TAxis* yaxis, TH1* data_mc, double ratio) {
   yaxis->SetRangeUser(divmin - 0.00001,divmax - 0.00001);
   yaxis->SetLabelSize(yaxis->GetLabelSize()*ratio);
   yaxis->SetTitleSize(ratio*yaxis->GetTitleSize());
+  yaxis->SetTitleSize(10);
   yaxis->SetTitleOffset(yaxis->GetTitleOffset()/ratio);
-  yaxis->SetTitle("#frac{Data}{MC}");
+  //yaxis->SetTitle("#frac{Data}{MC}");
+  yaxis->SetTitle("Data / MC");
 }
 
 //// if plot is a significance plot, finds the maximum and
@@ -921,6 +944,7 @@ void Plotter::addFile(Normer& norm) {
 
   while(filename.find("#") != string::npos) {
     filename.erase(filename.find("#"), 1);
+    cout << "COMMENTED OUT!" << endl;
   }
 
   TFile* normedFile = NULL;

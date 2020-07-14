@@ -4,7 +4,6 @@
 #include "Style.h"
 #include "tokenizer.hpp"
 
-
 using namespace std;
 
 ///// Read in config file that is used to find the files to normalize 
@@ -115,7 +114,7 @@ void read_info(string filename, map<string, Normer*>& plots) {
     tokenizer tokens(line, sep);
     stemp.clear();
     for(tokenizer::iterator iter = tokens.begin();iter != tokens.end(); iter++) {
-      if( ((*iter)[0] == '/' && (*iter)[0] == '/') || ((*iter)[0] == '#') ) break;
+      if( ((*iter)[0] == '/' && (*iter)[1] == '/') || ((*iter)[0] == '#') ) break;
       stemp.push_back(*iter);
 
     }
