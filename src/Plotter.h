@@ -91,8 +91,9 @@ class Plotter {
   //int color[9] = {kRed, 51, kMagenta, kYellow, kGreen, kCyan, kRed-9, kYellow-10, kGreen+2};
   //int color[9] = {kRed, kBlue, kOrange+6, kYellow, kGreen, kCyan, kWhite, kPink-8, kMagenta};
 
- int color[9] = {kBlue-9, 432-9, 23, kOrange+6, kRed-7, kYellow-9, kGreen-10, kPink-8, kMagenta};
-
+ //int color[9] = {kBlue-9, 432-9, 23, kOrange+6, kRed-7, kYellow-9, kGreen-10, kPink-8, kMagenta};
+ int color[16] = {kRed, kOrange+1, kYellow-7, kGreen+1, kBlue-4, kViolet-9, kMagenta+1, kAzure+10, kRed-9, kYellow-3, kCyan-9, kGreen+2,  kAzure+1, kViolet-1, kRed-7, kGreen-8};
+ 
  bool ssqrtsb = true, onlyTop = false;
   Bottom bottomType = Ratio;
   static unordered_map<string, string> latexer;

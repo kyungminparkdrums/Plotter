@@ -4,6 +4,7 @@
 #include "Style.h"
 #include "tokenizer.hpp"
 
+
 using namespace std;
 
 ///// Read in config file that is used to find the files to normalize 
@@ -21,6 +22,8 @@ int main(int argc, char* argv[]) {
     cerr << "No config file given: Exiting" << endl;
     exit(1);
   }
+
+  gROOT->ProcessLine( "gErrorIgnoreLevel = 2001;"); //added by Kyungmin
 
   bool ssqrtsb = true;
 
