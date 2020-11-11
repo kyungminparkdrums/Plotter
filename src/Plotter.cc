@@ -340,7 +340,7 @@ void Plotter::CreateStack( TDirectory *target, Logfile& logfile) {
     pt2->Draw();
 
     TPaveText *pt3 = new TPaveText(0.09,0.82,0.21,0.88,"NBNDC");
-    pt3->AddText("Preliminary");
+    pt3->AddText("Work in Progress");
     pt3->SetTextAlign(12);
     pt3->SetTextFont(52);
     pt3->SetFillStyle(0);
@@ -787,7 +787,7 @@ void Plotter::setYAxisBot(TAxis* yaxis, TH1* data_mc, double ratio) {
     if(tmpval > 0. && tmpval < low) {low = tmpval;}
 
     // added by Kyungmin
-    if (strcmp(data_mc->GetTitle(), "DiMuonPt") == 0) std::cout << data_mc->GetTitle() << ", Bin Content " << tmpval << ", Get Bin Error " << data_mc->GetBinError(i+1) << std::endl;
+    //if (strcmp(data_mc->GetTitle(), "DiMuonPt") == 0) std::cout << data_mc->GetTitle() << ", Bin Content " << tmpval << ", Get Bin Error " << data_mc->GetBinError(i+1) << std::endl;
   }
   double val = min(abs(1 / (high - 1.)), abs(1 / (1/low -1.)));
   if(high == 0.0) val = 0;
